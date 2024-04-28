@@ -1,10 +1,10 @@
-// login.js
+// app/login/page.js
 'use client';
 
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useRouter } from 'next/navigation';
-import Cookies from 'js-cookie';
+import { useAuth } from '../context/AuthContext';
 
 const LoginSchema = Yup.object().shape({
   email: Yup.string().email('Invalid email').required('Email is required'),
@@ -12,6 +12,7 @@ const LoginSchema = Yup.object().shape({
 });
 
 export default function Login() {
+  const { login } = useAuth();
   const router = useRouter();
 
   const formik = useFormik({
@@ -22,7 +23,7 @@ export default function Login() {
     validationSchema: LoginSchema,
     onSubmit: async (values) => {
       try {
-        const response = await fetch('/api/v1/login', {
+        const response = await fetch('api/v1/login', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -31,21 +32,20 @@ export default function Login() {
             email: values.email,
             password_hash: values.password,
           }),
-          credentials: 'include', // Include cookies in the request
+          credentials: 'include',
         });
 
         if (response.ok) {
-          const data = await response.json();
-          console.log(data);
-          // Redirect to a protected page or update the UI
-            Cookies.set('token', data.token);
+          const userData = await response.json();
+          login(userData);
+          router.push('/profile');
         } else {
           const errorData = await response.json();
-          console.error(errorData);
+          console.error('Login error:', errorData);
           // Handle login error, e.g., display error message
         }
       } catch (error) {
-        console.error(error);
+        console.error('Login error:', error);
         // Handle network or other errors
       }
     },
@@ -55,22 +55,28 @@ export default function Login() {
     <div>
       <h1>Login</h1>
       <form onSubmit={formik.handleSubmit}>
-        <input
-          type="email"
-          placeholder="Email"
-          {...formik.getFieldProps('email')}
-        />
-        {formik.touched.email && formik.errors.email && (
-          <div>{formik.errors.email}</div>
-        )}
-        <input
-          type="password"
-          placeholder="Password"
-          {...formik.getFieldProps('password')}
-        />
-        {formik.touched.password && formik.errors.password && (
-          <div>{formik.errors.password}</div>
-        )}
+        <div>
+          <label htmlFor="email">Email</label>
+          <input
+            id="email"
+            type="email"
+            {...formik.getFieldProps('email')}
+          />
+          {formik.touched.email && formik.errors.email && (
+            <div>{formik.errors.email}</div>
+          )}
+        </div>
+        <div>
+          <label htmlFor="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            {...formik.getFieldProps('password')}
+          />
+          {formik.touched.password && formik.errors.password && (
+            <div>{formik.errors.password}</div>
+          )}
+        </div>
         <button type="submit">Login</button>
       </form>
     </div>
