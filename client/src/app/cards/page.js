@@ -17,9 +17,12 @@ export default function CardsPage() {
                 </h3>
                 <div className="mt-2 max-w-xl text-sm text-gray-500">
                   <p>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam euismod, nisi vel bibendum
-                    consectetur, nisl nisl aliquam eros, nec tincidunt nisl nunc eget purus.
+                    Card Name
                   </p>
+                  <p>
+                    Card Info/Price
+                  </p>
+                  <button>Add to collection</button>
                 </div>
               </div>
             </div>

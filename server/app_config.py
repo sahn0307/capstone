@@ -16,7 +16,7 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_ECHO"] = True
 
 #! Flask JWT Extended configuration
-app.config["JWT_SECRET_KEY"] = "your-secret-key"
+app.config["JWT_SECRET_KEY"] = "place-holder"
 # Here you can globally configure all the ways you want to allow JWTs to
 # be sent to your web application. By default, this will be only headers.
 app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
