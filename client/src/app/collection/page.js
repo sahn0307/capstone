@@ -2,15 +2,19 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { useAuth } from '../context/AuthContext';
 
 export default function CollectionPage() {
+  const { user } = useAuth();
   const [userCards, setUserCards] = useState([]);
 
   useEffect(() => {
-    fetchUserCards();
-  }, []);
+    if (user) {
+      fetchUserCards(user.id);
+    }
+  }, [user]);
 
-  const fetchUserCards = async () => {
+  const fetchUserCards = async (userId) => {
     try {
       const response = await fetch(`/api/v1/user-cards?user_id=${userId}`);
       const data = await response.json();
@@ -29,7 +33,7 @@ export default function CollectionPage() {
         },
         body: JSON.stringify({ quantity }),
       });
-      fetchUserCards();
+      fetchUserCards(user.id);
     } catch (error) {
       console.error('Error updating user card quantity:', error);
     }
@@ -40,11 +44,15 @@ export default function CollectionPage() {
       await fetch(`/api/v1/user-cards/${userCardId}`, {
         method: 'DELETE',
       });
-      fetchUserCards();
+      fetchUserCards(user.id);
     } catch (error) {
       console.error('Error removing user card:', error);
     }
   };
+
+  if (!user) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="container mx-auto px-4">
