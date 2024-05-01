@@ -1,33 +1,82 @@
-import Link from 'next/link';
+'use client';
+
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
 
 export default function CardsPage() {
+  const [cards, setCards] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  useEffect(() => {
+    fetchCards();
+  }, [currentPage]);
+
+  const fetchCards = async () => {
+    try {
+      const response = await fetch(`/api/v1/cards?page=${currentPage}&per_page=20`);
+      const data = await response.json();
+      setCards(data.cards);
+      setTotalPages(data.total_pages);
+    } catch (error) {
+      console.error('Error fetching cards:', error);
+    }
+  };
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const renderPaginationButtons = () => {
+    const buttons = [];
+    const maxButtons = 5;
+    const halfMax = Math.floor(maxButtons / 2);
+    let startPage = currentPage - halfMax;
+    let endPage = currentPage + halfMax;
+
+    if (startPage < 1) {
+      endPage += 1 - startPage;
+      startPage = 1;
+    }
+
+    if (endPage > totalPages) {
+      startPage -= endPage - totalPages;
+      endPage = totalPages;
+    }
+
+    startPage = Math.max(startPage, 1);
+
+    for (let i = startPage; i <= endPage; i++) {
+      buttons.push(
+        <button
+          key={i}
+          className={`mr-2 px-4 py-2 rounded ${
+            currentPage === i ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'
+          }`}
+          onClick={() => handlePageChange(i)}
+        >
+          {i}
+        </button>
+      );
+    }
+
+    return buttons;
+  };
+
   return (
-    <div className="bg-gray-100 min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl md:text-5xl mb-8">
-          Magic Card Collection
-        </h1>
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {/* Placeholder card items */}
-          {[1, 2, 3, 4, 5, 6].map((card) => (
-            <div key={card} className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="px-4 py-5 sm:p-6">
-                <h3 className="text-lg leading-6 font-medium text-gray-900">
-                  Card {card}
-                </h3>
-                <div className="mt-2 max-w-xl text-sm text-gray-500">
-                  <p>
-                    Card Name
-                  </p>
-                  <p>
-                    Card Info/Price
-                  </p>
-                  <button>Add to collection</button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+    <div className="container mx-auto px-4">
+      <h1 className="text-3xl font-bold mb-4">Magic Cards</h1>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {cards.map((card) => (
+          <div key={card.id} className="bg-white shadow rounded-lg p-4">
+            <Image src={card.image_url} alt={card.name} width={200} height={280} />
+            <h3 className="text-xl font-semibold mt-2">{card.name}</h3>
+            <p className="text-gray-600">${card.price}</p>
+          </div>
+        ))}
+      </div>
+      <div className="mt-4 flex justify-center">
+        {renderPaginationButtons()}
       </div>
     </div>
   );

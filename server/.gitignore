@@ -2,3 +2,4 @@ instance/*
 !instance/.gitignore
 .webassets-cache
 .env
+cards_data.json
