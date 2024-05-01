@@ -65,3 +65,14 @@ class UserCardItemResource(Resource):
         else:
             return jsonify({'message': 'User card not found'}), 404
 
+class UserCardValueResource(Resource):
+    def get(self):
+        user_id = request.args.get('user_id')
+        user_cards = UserCard.query.filter_by(user_id=user_id).all()
+
+        total_value = 0
+        for user_card in user_cards:
+            card = Card.query.get(user_card.card_id)
+            total_value += card.price * user_card.quantity
+
+        return jsonify({'value': total_value})
