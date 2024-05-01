@@ -8,7 +8,7 @@ from routes.auth.logout import Logout
 from routes.auth.check_session import CheckSession
 from routes.auth.refresh import Refresh
 from routes.card.cards import CardsAPI
-from routes.usercard.user_card import UserCardResource, UserCardItemResource
+from routes.usercard.user_card import UserCardResource, UserCardItemResource, UserCardValueResource
 
 
 
@@ -20,5 +20,6 @@ api.add_resource(CheckSession, "/me")
 api.add_resource(Refresh, "/refresh")
 api.add_resource(UserCardResource, '/user-cards')
 api.add_resource(UserCardItemResource, '/user-cards/<int:user_card_id>')
+api.add_resource(UserCardValueResource, '/user-cards/value')
 if __name__ == "__main__":
     app.run(port=5555, debug=True)
