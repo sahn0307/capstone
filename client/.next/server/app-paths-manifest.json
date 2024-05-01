@@ -1,9 +1,3 @@
 {
-  "/page": "app/page.js",
-  "/signup/page": "app/signup/page.js",
-  "/auth/page": "app/auth/page.js",
-  "/profile/page": "app/profile/page.js",
-  "/cards/page": "app/cards/page.js",
-  "/favicon.ico/route": "app/favicon.ico/route.js",
-  "/collection/page": "app/collection/page.js"
+  "/cards/page": "app/cards/page.js"
 }

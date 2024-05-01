@@ -7,9 +7,10 @@ from routes.auth.login import Login
 from routes.auth.logout import Logout
 from routes.auth.check_session import CheckSession
 from routes.auth.refresh import Refresh
+from routes.card.cards import CardsAPI
 
 
-
+api.add_resource(CardsAPI, '/cards')
 api.add_resource(Users, "/signup")
 api.add_resource(Login, "/login")
 api.add_resource(Logout, "/logout")
