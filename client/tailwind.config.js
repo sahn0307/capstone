@@ -7,9 +7,11 @@ module.exports = {
  
     // Or if using `src` directory:
     './src/**/*.{js,ts,jsx,tsx,mdx}',
+    './globals.css', // Add this line
   ],
   theme: {
     extend: {},
   },
   plugins: [],
+  
 }
