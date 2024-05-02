@@ -14,6 +14,7 @@ class UserCardResource(Resource):
         user_id = data.get('user_id')
         card_id = data.get('card_id')
         quantity = data.get('quantity', 1)
+        
 
         user_card = UserCard.query.filter_by(user_id=user_id, card_id=card_id).first()
         if user_card:
@@ -27,7 +28,17 @@ class UserCardResource(Resource):
 
     def get(self):
         user_id = request.args.get('user_id')
-        user_cards = UserCard.query.filter_by(user_id=user_id).all()
+        search_query = request.args.get('search', '')
+        total_cards = UserCard.query.filter_by(user_id=user_id).join(Card).filter(Card.name.ilike(f'%{search_query}%')).count()
+
+
+        user_cards_query = UserCard.query.filter_by(user_id=user_id)
+        if search_query:
+            search_pattern = f'%{search_query}%'
+            user_cards_query = user_cards_query.join(Card).filter(Card.name.ilike(search_pattern))
+            
+
+        user_cards = user_cards_query.all()
 
         cards = []
         for user_card in user_cards:
@@ -38,7 +49,8 @@ class UserCardResource(Resource):
                 'name': card.name,
                 'image_url': card.image_url,
                 'price': card.price,
-                'quantity': user_card.quantity
+                'quantity': user_card.quantity,
+                'total_cards': total_cards
             })
 
         return jsonify(cards)
