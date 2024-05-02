@@ -11,7 +11,9 @@ def seed_cards():
             id=card_data.get('id', ''),
             name=card_data.get('name', ''),
             image_url=card_data.get('image_uris', {}).get('normal', ''),
-            price=card_data.get('prices', {}).get('usd', None)
+            price=card_data.get('prices', {}).get('usd', None),
+            set_name=card_data['set_name'],
+            colors=','.join(card_data['color_identity'])  # Join color identities as a comma-separated string
         )
         db.session.add(card)
 
