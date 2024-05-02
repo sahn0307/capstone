@@ -7,16 +7,17 @@ import { useAuth } from '../context/AuthContext';
 export default function CollectionPage() {
   const { user } = useAuth();
   const [userCards, setUserCards] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     if (user) {
       fetchUserCards(user.id);
     }
-  }, [user]);
+  }, [user, searchQuery]);
 
   const fetchUserCards = async (userId) => {
     try {
-      const response = await fetch(`/api/v1/user-cards?user_id=${userId}`);
+      const response = await fetch(`/api/v1/user-cards?user_id=${userId}&search=${searchQuery}`);
       const data = await response.json();
       setUserCards(data);
     } catch (error) {
@@ -50,6 +51,10 @@ export default function CollectionPage() {
     }
   };
 
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value);
+  };
+
   if (!user) {
     return <div>Loading...</div>;
   }
@@ -57,6 +62,15 @@ export default function CollectionPage() {
   return (
     <div className="container mx-auto px-4">
       <h1 className="text-3xl font-bold mb-4">My Collection</h1>
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="Search by card name"
+          value={searchQuery}
+          onChange={handleSearchChange}
+          className="border border-gray-300 rounded px-4 py-2 w-full"
+        />
+      </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {userCards.map((userCard) => (
           <div key={userCard.id} className="bg-white shadow rounded-lg p-4">
