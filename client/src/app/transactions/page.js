@@ -1,5 +1,4 @@
 'use client';
-
 import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 
@@ -26,26 +25,32 @@ export default function TransactionsPage() {
   return (
     <div className="container mx-auto px-4">
       <h1 className="text-3xl font-bold mb-4">Transactions</h1>
-      <table className="w-full border-collapse">
-        <thead>
-          <tr>
-            <th className="py-2 px-4 border-b">Card Name</th>
-            <th className="py-2 px-4 border-b">Quantity</th>
-            <th className="py-2 px-4 border-b">Buy Price</th>
-            <th className="py-2 px-4 border-b">Sell Price</th>
-          </tr>
-        </thead>
-        <tbody>
-          {transactions.map((transaction) => (
-            <tr key={transaction.id}>
-              <td className="py-2 px-4 border-b">{transaction.card_name}</td>
-              <td className="py-2 px-4 border-b">{transaction.quantity}</td>
-              <td className="py-2 px-4 border-b">{transaction.buy_price}</td>
-              <td className="py-2 px-4 border-b">{transaction.sell_price}</td>
+      <div className="bg-white shadow-md rounded-md overflow-x-auto">
+        <table className="w-full border-collapse">
+          <thead>
+            <tr>
+              <th className="py-2 px-4 border-b bg-gray-100 text-left">Card Name</th>
+              <th className="py-2 px-4 border-b bg-gray-100 text-center">Quantity</th>
+              <th className="py-2 px-4 border-b bg-gray-100 text-right">Buy Price</th>
+              <th className="py-2 px-4 border-b bg-gray-100 text-right">Sell Price</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {transactions.map((transaction) => (
+              <tr key={transaction.id}>
+                <td className="py-2 px-4 border-b text-left">{transaction.card_name}</td>
+                <td className="py-2 px-4 border-b text-center">{transaction.quantity}</td>
+                <td className="py-2 px-4 border-b text-right">
+                  {transaction.buy_price ? `$${transaction.buy_price.toFixed(2)}` : '-'}
+                </td>
+                <td className="py-2 px-4 border-b text-right">
+                  {transaction.sell_price ? `$${transaction.sell_price.toFixed(2)}` : '-'}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

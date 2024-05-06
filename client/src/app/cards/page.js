@@ -144,7 +144,7 @@ export default function CardsPage() {
     } else if (isCardInCollection(card.id)) {
       return (
         <div className="mt-4">
-          <span>Quantity: {getUserCardQuantity(card.id)}</span>
+          <span>Amount in collection: {getUserCardQuantity(card.id)}</span>
         </div>
       );
     } else {

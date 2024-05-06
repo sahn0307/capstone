@@ -8,6 +8,10 @@ export default function CollectionPage() {
   const { user } = useAuth();
   const [userCards, setUserCards] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCard, setSelectedCard] = useState(null);
+  const [quantity, setQuantity] = useState(1);
+  const [price, setPrice] = useState(0);
+  const [isAddingOrBuying, setIsAddingOrBuying] = useState(true);
 
   useEffect(() => {
     if (user) {
@@ -17,38 +21,78 @@ export default function CollectionPage() {
 
   const fetchUserCards = async (userId) => {
     try {
+      console.log('fetchUserCards called with userId:', userId);
       const response = await fetch(`/api/v1/user-cards?user_id=${userId}&search=${searchQuery}`);
       const data = await response.json();
+      console.log('Response data:', data);
       setUserCards(data);
+      console.log('userCards state after setting:', data);
     } catch (error) {
       console.error('Error fetching user cards:', error);
     }
   };
 
-  const handleQuantityChange = async (userCardId, quantity) => {
+  const handleAddOrBuyMore = (card) => {
+    setSelectedCard(card);
+    setQuantity(1);
+    setPrice(card.price);
+    setIsAddingOrBuying(true);
+  };
+
+  const handleSellOrRemove = (card) => {
+    setSelectedCard(card);
+    setQuantity(1);
+    setPrice(card.price);
+    setIsAddingOrBuying(false);
+  };
+
+  const handleSubmitTransaction = async () => {
     try {
-      await fetch(`/api/v1/user-cards/${userCardId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ quantity }),
-      });
-      fetchUserCards(user.id);
+      if (selectedCard) {
+        const { id: userCardId, card_id: cardId, name: cardName, quantity: currentQuantity } = selectedCard;
+
+        // Create a new transaction
+        await fetch('/api/v1/transactions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            user_id: user.id,
+            card_id: cardId,
+            card_name: cardName,
+            quantity: quantity,
+            buy_price: isAddingOrBuying ? price : undefined,
+            sell_price: !isAddingOrBuying ? price : undefined,
+          }),
+        });
+
+        // Update the quantity in the user's collection
+        await fetch(`/api/v1/user-cards/${userCardId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            quantity: isAddingOrBuying ? currentQuantity + quantity : currentQuantity - quantity,
+          }),
+        });
+
+        setSelectedCard(null);
+        setQuantity(1);
+        setPrice(0);
+
+        fetchUserCards(user.id);
+      }
     } catch (error) {
-      console.error('Error updating user card quantity:', error);
+      console.error('Error submitting transaction:', error);
     }
   };
 
-  const handleRemoveCard = async (userCardId) => {
-    try {
-      await fetch(`/api/v1/user-cards/${userCardId}`, {
-        method: 'DELETE',
-      });
-      fetchUserCards(user.id);
-    } catch (error) {
-      console.error('Error removing user card:', error);
-    }
+  const handleCancelTransaction = () => {
+    setSelectedCard(null);
+    setQuantity(1);
+    setPrice(0);
   };
 
   const handleSearchChange = (event) => {
@@ -72,29 +116,72 @@ export default function CollectionPage() {
         />
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {userCards.map((userCard) => (
-          <div key={userCard.id} className="bg-white shadow rounded-lg p-4">
-            <Image src={userCard.image_url} alt={userCard.name} width={200} height={280} />
-            <h3 className="text-xl font-semibold mt-2">{userCard.name}</h3>
-            <p className="text-gray-600">${userCard.price}</p>
-            <div className="mt-4">
-              <label htmlFor={`quantity-${userCard.id}`}>Quantity:</label>
-              <input
-                type="number"
-                id={`quantity-${userCard.id}`}
-                value={userCard.quantity}
-                onChange={(e) => handleQuantityChange(userCard.id, parseInt(e.target.value))}
-                className="border border-gray-300 rounded px-2 py-1 ml-2"
-              />
+        {userCards && userCards.length > 0 ? (
+          userCards.map((userCard) => (
+            <div key={userCard.id} className="bg-white shadow rounded-lg p-4">
+              <Image src={userCard.image_url} alt={userCard.name} width={200} height={280} />
+              <h3 className="text-xl font-semibold mt-2">{userCard.name}</h3>
+              <p className="text-gray-600">${userCard.price}</p>
+              <p className="mt-2">Quantity: {userCard.quantity}</p>
+              <div className="mt-4">
+                {selectedCard && selectedCard.id === userCard.id ? (
+                  <div>
+                    <input
+                      type="number"
+                      min="1"
+                      value={quantity}
+                      onChange={(e) => setQuantity(parseInt(e.target.value))}
+                      className="border border-gray-300 rounded px-2 py-1 mr-2"
+                    />
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={price}
+                      onChange={(e) => setPrice(parseFloat(e.target.value))}
+                      className="border border-gray-300 rounded px-2 py-1 mr-2"
+                    />
+                    <button
+                      onClick={handleSubmitTransaction}
+                      className="px-4 py-2 bg-green-500 text-white rounded mr-2"
+                    >
+                      {isAddingOrBuying ? 'Add/Buy' : 'Sell/Remove'}
+                    </button>
+                    <button
+                      onClick={handleCancelTransaction}
+                      className="px-4 py-2 bg-gray-500 text-white rounded"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  <div>
+                    <button
+                      onClick={() => {
+                        handleAddOrBuyMore(userCard);
+                        setIsAddingOrBuying(true);
+                      }}
+                      className="px-4 py-2 bg-green-500 text-white rounded mr-2"
+                    >
+                      Add/Buy More
+                    </button>
+                    <button
+                      onClick={() => {
+                        handleSellOrRemove(userCard);
+                        setIsAddingOrBuying(false);
+                      }}
+                      className="px-4 py-2 bg-red-500 text-white rounded"
+                    >
+                      Sell/Remove
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
-            <button
-              onClick={() => handleRemoveCard(userCard.id)}
-              className="mt-4 px-4 py-2 bg-red-500 text-white rounded"
-            >
-              Remove
-            </button>
-          </div>
-        ))}
+          ))
+        ) : (
+          <p>No cards found in your collection.</p>
+        )}
       </div>
     </div>
   );
