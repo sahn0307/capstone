@@ -42,3 +42,4 @@ ma = Marshmallow(app)
 flask_bcrypt = Bcrypt(app)
 #! Flask JWT Extended configuration
 jwt = JWTManager(app)
+CORS(app)
