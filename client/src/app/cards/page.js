@@ -47,6 +47,8 @@ export default function CardsPage() {
 
   const handleAddToCollection = (card) => {
     setSelectedCard(card);
+    setQuantity(1);
+    setBuyPrice(card.price ? card.price.toFixed(2) : 0);
   };
 
   const handleCancel = () => {
@@ -224,7 +226,7 @@ export default function CardsPage() {
           <div key={card.id} className="bg-white shadow rounded-lg p-4">
             <Image src={card.image_url} alt={card.name} width={200} height={280} />
             <h3 className="text-xl font-semibold mt-2">{card.name}</h3>
-            <p className="text-gray-600">${card.price}</p>
+            <p className="text-gray-600">{card.price ? `$${card.price.toFixed(2)}` : 'No Price Available'}</p>
             {user && renderCardActions(card)}
           </div>
         ))}

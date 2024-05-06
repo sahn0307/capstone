@@ -35,14 +35,14 @@ export default function CollectionPage() {
   const handleAddOrBuyMore = (card) => {
     setSelectedCard(card);
     setQuantity(1);
-    setPrice(card.price);
+    setPrice(card.price ? card.price.toFixed(2) : 0);
     setIsAddingOrBuying(true);
   };
 
   const handleSellOrRemove = (card) => {
     setSelectedCard(card);
     setQuantity(1);
-    setPrice(card.price);
+    setPrice(card.price ? card.price.toFixed(2) : 0);
     setIsAddingOrBuying(false);
   };
 
@@ -121,7 +121,7 @@ export default function CollectionPage() {
             <div key={userCard.id} className="bg-white shadow rounded-lg p-4">
               <Image src={userCard.image_url} alt={userCard.name} width={200} height={280} />
               <h3 className="text-xl font-semibold mt-2">{userCard.name}</h3>
-              <p className="text-gray-600">${userCard.price}</p>
+              <p className="text-gray-600">{userCard.price ? `$${userCard.price.toFixed(2)}` : 'No Price Available'}</p>
               <p className="mt-2">Quantity: {userCard.quantity}</p>
               <div className="mt-4">
                 {selectedCard && selectedCard.id === userCard.id ? (

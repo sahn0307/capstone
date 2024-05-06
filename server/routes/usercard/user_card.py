@@ -6,6 +6,7 @@ from .. import (
 from models.user_card import UserCard
 from models.card import Card
 from flask import jsonify
+from sqlalchemy import func, case, literal_column
 
 
 class UserCardResource(Resource):
@@ -80,11 +81,20 @@ class UserCardItemResource(Resource):
 class UserCardValueResource(Resource):
     def get(self):
         user_id = request.args.get('user_id')
+        if not user_id:
+            return {'message': 'User ID is required'}, 400
+
         user_cards = UserCard.query.filter_by(user_id=user_id).all()
 
-        total_value = 0
-        for user_card in user_cards:
-            card = Card.query.get(user_card.card_id)
-            total_value += card.price * user_card.quantity
+        total_value = (
+            db.session.query(
+                func.sum(
+                    func.coalesce(Card.price, 0) * UserCard.quantity
+                )
+            )
+            .join(Card, Card.id == UserCard.card_id)
+            .filter(UserCard.user_id == user_id)
+            .scalar() or 0
+        )
 
-        return jsonify({'value': total_value})
+        return {'value': total_value}, 200

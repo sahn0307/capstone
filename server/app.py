@@ -8,7 +8,7 @@ from routes.auth.logout import Logout
 from routes.auth.check_session import CheckSession
 from routes.auth.refresh import Refresh
 from routes.card.cards import CardsAPI
-from routes.transaction.transaction import TransactionResource
+from routes.transaction.transaction import TransactionResource, TransactionTotal
 from routes.usercard.user_card import UserCardResource, UserCardItemResource, UserCardValueResource
 
 
@@ -24,5 +24,6 @@ api.add_resource(UserCardItemResource, '/user-cards/<int:user_card_id>')
 api.add_resource(UserCardValueResource, '/user-cards/value')
 api.add_resource(TransactionResource, '/transactions')
 api.add_resource(UserResource, '/users/<int:user_id>')
+api.add_resource(TransactionTotal, '/transactions/value')
 if __name__ == "__main__":
     app.run(port=5555, debug=True)

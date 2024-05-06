@@ -1,7 +1,8 @@
 from .. import request, Resource, db
 from models.transaction import Transaction
 from sqlalchemy.exc import SQLAlchemyError
-
+from sqlalchemy import func, case, literal_column
+from flask import jsonify
 class TransactionResource(Resource):
     def post(self):
         data = request.get_json()
@@ -48,3 +49,26 @@ class TransactionResource(Resource):
             })
 
         return transaction_data, 200
+    
+class TransactionTotal(Resource):
+    def get(self):
+        user_id = request.args.get('user_id')
+        if not user_id:
+            return {'message': 'User ID is required'}, 400
+
+        total_buy_price = (
+            db.session.query(func.sum(Transaction.buy_price))
+            .filter_by(user_id=user_id)
+            .filter(Transaction.buy_price.isnot(None))
+            .scalar() or 0
+        )
+        total_sell_price = (
+            db.session.query(func.sum(Transaction.sell_price))
+            .filter_by(user_id=user_id)
+            .filter(Transaction.sell_price.isnot(None))
+            .scalar() or 0
+        )
+
+        profit_loss = total_sell_price - total_buy_price
+
+        return ({'profitLoss': profit_loss}), 200
