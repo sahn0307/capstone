@@ -41,6 +41,9 @@ export default function Navbar() {
                     <Link href="/collection" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
                       Collection
                     </Link>
+                    <Link href="/transactions" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                      Transactions
+                    </Link>
                     <Link href="/profile" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
                       Profile
                     </Link>
