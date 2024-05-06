@@ -12,6 +12,9 @@ export default function CardsPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [totalCards, setTotalCards] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCard, setSelectedCard] = useState(null);
+  const [quantity, setQuantity] = useState(1);
+  const [buyPrice, setBuyPrice] = useState(0);
 
   useEffect(() => {
     fetchCards();
@@ -42,39 +45,52 @@ export default function CardsPage() {
     }
   };
 
-  const handleAddToCollection = async (cardId) => {
+  const handleAddToCollection = (card) => {
+    setSelectedCard(card);
+  };
+
+  const handleCancel = () => {
+    setSelectedCard(null);
+    setQuantity(1);
+    setBuyPrice(0);
+  };
+
+  const handleSubmit = async () => {
     try {
+      // Create a new transaction
+      await fetch('/api/v1/transactions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: user.id,
+          card_id: selectedCard.id,
+          quantity,
+          buy_price: buyPrice,
+        }),
+      });
+
+      // Add the card to the user's collection or update the quantity
       await fetch('/api/v1/user-cards', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ user_id: user.id, card_id: cardId }),
+        body: JSON.stringify({
+          user_id: user.id,
+          card_id: selectedCard.id,
+          quantity,
+        }),
       });
+
+      // Reset the selected card and form values
+      handleCancel();
+
+      // Fetch the updated user cards
       fetchUserCards();
     } catch (error) {
       console.error('Error adding card to collection:', error);
-    }
-  };
-
-  const handleQuantityChange = async (userCardId, quantity) => {
-    try {
-      if (quantity === 0) {
-        await fetch(`/api/v1/user-cards/${userCardId}`, {
-          method: 'DELETE',
-        });
-      } else {
-        await fetch(`/api/v1/user-cards/${userCardId}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ quantity }),
-        });
-      }
-      fetchUserCards();
-    } catch (error) {
-      console.error('Error updating user card quantity:', error);
     }
   };
 
@@ -88,30 +104,52 @@ export default function CardsPage() {
   };
 
   const renderCardActions = (card) => {
-    const userCard = userCards.find((userCard) => userCard.card_id === card.id);
-
-    if (userCard) {
+    if (selectedCard && selectedCard.id === card.id) {
       return (
         <div className="mt-4">
+          <label htmlFor="quantity">Quantity:</label>
+          <input
+            type="number"
+            id="quantity"
+            min="1"
+            value={quantity}
+            onChange={(e) => setQuantity(parseInt(e.target.value))}
+            className="border border-gray-300 rounded px-2 py-1 ml-2"
+          />
+          <label htmlFor="buyPrice">Buy Price:</label>
+          <input
+            type="number"
+            id="buyPrice"
+            min="0"
+            step="0.01"
+            value={buyPrice}
+            onChange={(e) => setBuyPrice(parseFloat(e.target.value))}
+            className="border border-gray-300 rounded px-2 py-1 ml-2"
+          />
           <button
-            onClick={() => handleQuantityChange(userCard.id, userCard.quantity - 1)}
-            className="px-2 py-1 bg-red-500 text-white rounded mr-2"
+            onClick={handleCancel}
+            className="px-2 py-1 bg-gray-200 text-gray-700 rounded ml-2"
           >
-            -
+            Cancel
           </button>
-          <span>{userCard.quantity}</span>
           <button
-            onClick={() => handleQuantityChange(userCard.id, userCard.quantity + 1)}
-            className="px-2 py-1 bg-green-500 text-white rounded ml-2"
+            onClick={handleSubmit}
+            className="px-2 py-1 bg-blue-500 text-white rounded ml-2"
           >
-            +
+            Submit
           </button>
+        </div>
+      );
+    } else if (isCardInCollection(card.id)) {
+      return (
+        <div className="mt-4">
+          <span>Quantity: {getUserCardQuantity(card.id)}</span>
         </div>
       );
     } else {
       return (
         <button
-          onClick={() => handleAddToCollection(card.id)}
+          onClick={() => handleAddToCollection(card)}
           className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
         >
           Add to Collection
@@ -131,13 +169,7 @@ export default function CardsPage() {
 
   const renderPaginationButtons = () => {
     return (
-
-        
       <div className="mt-8 flex justify-center items-center">
-        <span className="mx-4">
-          {(currentPage - 1) * 20 + 1} - {Math.min(currentPage * 20, totalCards)} of {totalCards} cards
-          {searchQuery && ` where the name includes "${searchQuery}"`}
-        </span>
         <button
           onClick={() => handlePageChange(1)}
           disabled={currentPage === 1}
@@ -152,7 +184,10 @@ export default function CardsPage() {
         >
           Previous
         </button>
-        
+        <span className="mx-4">
+          {(currentPage - 1) * 20 + 1} - {Math.min(currentPage * 20, totalCards)} of {totalCards} cards
+          {searchQuery && ` where the name includes "${searchQuery}"`}
+        </span>
         <button
           onClick={() => handlePageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
@@ -183,7 +218,6 @@ export default function CardsPage() {
           className="border border-gray-300 rounded px-4 py-2 w-full"
         />
       </div>
-      {renderPaginationButtons()}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {cards.map((card) => (
           <div key={card.id} className="bg-white shadow rounded-lg p-4">
@@ -194,7 +228,7 @@ export default function CardsPage() {
           </div>
         ))}
       </div>
-      
+      {renderPaginationButtons()}
     </div>
   );
 }
