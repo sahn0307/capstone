@@ -68,6 +68,7 @@ export default function CardsPage() {
           card_id: selectedCard.id,
           quantity,
           buy_price: buyPrice,
+          card_name: selectedCard.name,
         }),
       });
 

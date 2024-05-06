@@ -10,6 +10,7 @@ class TransactionResource(Resource):
         quantity = data.get('quantity')
         buy_price = data.get('buy_price')
         sell_price = data.get('sell_price')
+        card_name = data.get('card_name')
 
         try:
             transaction = Transaction(
@@ -18,12 +19,32 @@ class TransactionResource(Resource):
                 quantity=quantity,
                 buy_price=buy_price,
                 sell_price=sell_price,
+                card_name=card_name
             )
             db.session.add(transaction)
             db.session.commit()
             return {'message': 'Transaction added successfully'}, 201
         except SQLAlchemyError as e:
             db.session.rollback()
-            return {'message': str(e)}, 500
+            return {'message': str(e)}, 400
         except Exception as e:
-            return {'message': str(e)}, 500
+            return {'message': str(e)}, 400
+    def get(self):
+        user_id = request.args.get('user_id')
+        if not user_id:
+            return {'message': 'User ID is required'}, 400
+
+        transactions = Transaction.query.filter_by(user_id=user_id).all()
+        transaction_data = []
+        for transaction in transactions:
+            transaction_data.append({
+                'id': transaction.id,
+                'user_id': transaction.user_id,
+                'card_id': transaction.card_id,
+                'quantity': transaction.quantity,
+                'buy_price': transaction.buy_price,
+                'sell_price': transaction.sell_price,
+                'card_name': transaction.card_name
+            })
+
+        return transaction_data, 200
