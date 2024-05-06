@@ -3,9 +3,20 @@
 
 import Link from 'next/link';
 import { useAuth } from '../context/AuthContext';
+import { useRouter } from 'next/navigation';
 
 export default function Navbar() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      router.push('/');
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  };
 
   return (
     <nav className="bg-gray-800">
@@ -33,9 +44,12 @@ export default function Navbar() {
                     <Link href="/profile" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
                       Profile
                     </Link>
-                    <Link href="/logout" className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
-                      Logout
-                    </Link>
+                    <button
+                onClick={handleLogout}
+                className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+              >
+                Logout
+              </button>
                   </>
                 ) : (
                   <>

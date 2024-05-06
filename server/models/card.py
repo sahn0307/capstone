@@ -9,3 +9,4 @@ class Card(db.Model):
     price = db.Column(db.Float, nullable=True)
     set_name = db.Column(db.String(100), nullable=False)
     colors = db.Column(db.String(100), nullable=False)
+    
