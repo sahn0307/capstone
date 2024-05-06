@@ -23,15 +23,14 @@ export default function EditProfilePage() {
     email: user?.email || '',
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      await updateUser(user.id, { username, email });
+      await updateUser(user.id, values);
       router.push('/profile');
     } catch (error) {
       console.error('Error updating profile:', error);
-      // Display an error message to the user
-      alert('Failed to update profile. Please try again.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
