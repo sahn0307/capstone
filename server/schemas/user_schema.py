@@ -24,8 +24,7 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
         return loaded_instance
 
 
-#! Create schema for a single crew_member
+
 user_schema = UserSchema()
-#! Create schema for a collection of crew_members
 # * Feel free to use only and exclude to customize
 users_schema = UserSchema(many=True)

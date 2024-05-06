@@ -59,8 +59,31 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const updateUser = async (userId, updatedData) => {
+    try {
+      const response = await fetch(`http://localhost:5555/api/v1/users/${userId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedData),
+      });
+  
+      if (response.ok) {
+        const updatedUser = await response.json();
+        setUser(updatedUser);
+      } else {
+        const errorData = await response.json();
+        throw new Error(`Failed to update user profile: ${errorData.message}`);
+      }
+    } catch (error) {
+      console.error('Error updating user profile:', error);
+      throw error;
+    }
+  };
+  
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

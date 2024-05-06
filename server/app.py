@@ -2,7 +2,7 @@
 
 #! Internal imports
 from app_config import app, api
-from routes.user.users import Users
+from routes.user.users import Users, UserResource
 from routes.auth.login import Login
 from routes.auth.logout import Logout
 from routes.auth.check_session import CheckSession
@@ -23,5 +23,6 @@ api.add_resource(UserCardResource, '/user-cards')
 api.add_resource(UserCardItemResource, '/user-cards/<int:user_card_id>')
 api.add_resource(UserCardValueResource, '/user-cards/value')
 api.add_resource(Transaction, '/transactions')
+api.add_resource(UserResource, '/users/<int:user_id>')
 if __name__ == "__main__":
     app.run(port=5555, debug=True)

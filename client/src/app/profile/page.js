@@ -8,6 +8,7 @@ export default function Profile() {
   const { user, logout } = useAuth();
   const [collectionValue, setCollectionValue] = useState(0);
   const router = useRouter();
+  
 
   useEffect(() => {
     if (user) {
@@ -41,6 +42,7 @@ export default function Profile() {
       console.error('Error deleting profile:', error);
     }
   };
+  
 
   if (!user) {
     return <div>Loading...</div>;
