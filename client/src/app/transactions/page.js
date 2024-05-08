@@ -18,7 +18,7 @@ export default function TransactionsPage() {
       const data = await response.json();
       setTransactions(data);
     } catch (error) {
-      console.error('Error fetching transactions:', error);
+      toast.error('Error fetching transactions:', error);
     }
   };
 

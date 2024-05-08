@@ -1,14 +1,22 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '../context/AuthContext';
+import { useAuth,  } from '../context/AuthContext';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function Profile() {
-  const { user, logout } = useAuth();
+  const { user, logout, fetchUserData } = useAuth();
   const [collectionValue, setCollectionValue] = useState(0);
   const [profitLoss, setProfitLoss] = useState(0);
   const router = useRouter();
 
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+  }
+  
   useEffect(() => {
     if (user) {
       fetchCollectionValue(user.id);
@@ -22,7 +30,7 @@ export default function Profile() {
       const data = await response.json();
       setCollectionValue(data.value);
     } catch (error) {
-      console.error('Error fetching collection value:', error);
+      toast.error('Error fetching collection value:', error);
     }
   };
 
@@ -32,7 +40,7 @@ export default function Profile() {
       const data = await response.json();
       setProfitLoss(data.profitLoss);
     } catch (error) {
-      console.error('Error fetching profit/loss:', error);
+      toast.error('Error fetching profit/loss:', error);
     }
   };
 
@@ -44,12 +52,15 @@ export default function Profile() {
   const handleDeleteProfile = async () => {
     try {
       await fetch(`/api/v1/users/${user.id}`, {
+        headers: {
+          'X-CSRF-TOKEN': getCookie('csrf_access_token'),
+        },
         method: 'DELETE',
       });
       logout();
       router.push('/');
     } catch (error) {
-      console.error('Error deleting profile:', error);
+      toast.error('Error deleting profile:', error);
     }
   };
 
@@ -93,6 +104,7 @@ export default function Profile() {
           Delete Profile
         </button>
       </div>
+      <ToastContainer />
     </div>
   );
 }

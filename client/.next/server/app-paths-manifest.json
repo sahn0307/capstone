@@ -1,8 +1,9 @@
 {
-  "/cards/page": "app/cards/page.js",
+  "/page": "app/page.js",
+  "/auth/page": "app/auth/page.js",
+  "/profile/edit/page": "app/profile/edit/page.js",
   "/profile/page": "app/profile/page.js",
   "/collection/page": "app/collection/page.js",
-  "/auth/page": "app/auth/page.js",
-  "/transactions/page": "app/transactions/page.js",
-  "/page": "app/page.js"
+  "/cards/page": "app/cards/page.js",
+  "/transactions/page": "app/transactions/page.js"
 }

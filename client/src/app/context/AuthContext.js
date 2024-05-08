@@ -2,7 +2,8 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect } from 'react';
-import Cookies from 'js-cookie';
+import { useRouter } from 'next/navigation';
+import { toast } from 'react-toastify';
 
 const AuthContext = createContext();
 
@@ -10,80 +11,66 @@ export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const router = useRouter();
 
   useEffect(() => {
-    const token = Cookies.get('access_token');
-    if (token) {
-      // Fetch user data using the token
-      fetchUserData(token);
-    }
-  }, []);
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch('http://localhost:5555/api/v1/me', {
+          credentials: 'include',
+        });
 
-  const fetchUserData = async (token) => {
-    try {
-      const response = await fetch('/api/v1/me', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+        if (response.ok) {
+          const userData = await response.json();
+          setUser(userData);
+        } else {
+          const refreshResponse = await fetch('http://localhost:5555/api/v1/refresh', {
+            method: 'POST',
+            credentials: 'include',
+          });
 
-      if (response.ok) {
-        const userData = await response.json();
-        setUser(userData);
-      } else {
-        // Handle error case
-        console.error('Failed to fetch user data');
-        setUser(null);
+          if (refreshResponse.ok) {
+            const refreshedUserData = await refreshResponse.json();
+            setUser(refreshedUserData);
+          } else {
+            router.push('/auth');
+            toast.error('Please log in');
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        router.push('/auth');
+        toast.error('An error occurred. Please log in again.');
       }
-    } catch (error) {
-      console.error('Error fetching user data:', error);
-      setUser(null);
-    }
-  };
+    };
 
-  const login = (userData, token) => {
+    fetchUserData();
+  }, [router]);
+
+  const login = async (userData) => {
     setUser(userData);
-    Cookies.set('access_token', token, { expires: 7 }); // Set the token cookie with a 7-day expiration
   };
 
   const logout = async () => {
     try {
-      await fetch('api/v1/logout', {
+      await fetch('http://localhost:5555/api/v1/logout', {
         method: 'DELETE',
         credentials: 'include',
       });
-      Cookies.remove('access_token');
       setUser(null);
+      router.push('/auth');
     } catch (error) {
       console.error('Logout error:', error);
+      toast.error('An error occurred during logout.');
     }
   };
 
-  const updateUser = async (userId, updatedData) => {
-    try {
-      const response = await fetch(`http://localhost:5555/api/v1/users/${userId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updatedData),
-      });
-  
-      if (response.ok) {
-        const updatedUser = await response.json();
-        setUser(updatedUser);
-      } else {
-        const errorData = await response.json();
-        throw new Error(`Failed to update user profile: ${errorData.message}`);
-      }
-    } catch (error) {
-      console.error('Error updating user profile:', error);
-      throw error;
-    }
+  const updateUser = (updatedUser) => {
+    setUser(updatedUser);
   };
-  
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, updateUser }}>
+    <AuthContext.Provider value={{ user, login, logout, updateUser}}>
       {children}
     </AuthContext.Provider>
   );

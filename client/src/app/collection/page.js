@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useAuth } from '../context/AuthContext';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function CollectionPage() {
   const { user } = useAuth();
@@ -28,7 +30,7 @@ export default function CollectionPage() {
       setUserCards(data);
       console.log('userCards state after setting:', data);
     } catch (error) {
-      console.error('Error fetching user cards:', error);
+      toast.error('Error fetching user cards:', error);
     }
   };
 
@@ -45,6 +47,11 @@ export default function CollectionPage() {
     setPrice(card.price ? card.price.toFixed(2) : 0);
     setIsAddingOrBuying(false);
   };
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+  }
 
   const handleSubmitTransaction = async () => {
     try {
@@ -55,6 +62,7 @@ export default function CollectionPage() {
         await fetch('/api/v1/transactions', {
           method: 'POST',
           headers: {
+            'X-CSRF-TOKEN': getCookie('csrf_access_token'),
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
@@ -71,6 +79,7 @@ export default function CollectionPage() {
         await fetch(`/api/v1/user-cards/${userCardId}`, {
           method: 'PUT',
           headers: {
+            'X-CSRF-TOKEN': getCookie('csrf_access_token'),
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
@@ -85,7 +94,7 @@ export default function CollectionPage() {
         fetchUserCards(user.id);
       }
     } catch (error) {
-      console.error('Error submitting transaction:', error);
+      toast.error('Error submitting transaction:', error);
     }
   };
 
