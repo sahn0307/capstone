@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useAuth } from '../context/AuthContext';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function CollectionPage() {
   const { user } = useAuth();
@@ -28,7 +30,7 @@ export default function CollectionPage() {
       setUserCards(data);
       console.log('userCards state after setting:', data);
     } catch (error) {
-      console.error('Error fetching user cards:', error);
+      toast.error('Error fetching user cards:', error);
     }
   };
 
@@ -92,7 +94,7 @@ export default function CollectionPage() {
         fetchUserCards(user.id);
       }
     } catch (error) {
-      console.error('Error submitting transaction:', error);
+      toast.error('Error submitting transaction:', error);
     }
   };
 

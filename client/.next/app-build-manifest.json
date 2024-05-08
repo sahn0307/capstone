@@ -14,6 +14,7 @@
     "/cards/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
+      "static/css/app/cards/page.css",
       "static/chunks/app/cards/page.js"
     ],
     "/auth/page": [
@@ -25,16 +26,19 @@
     "/profile/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
+      "static/css/app/profile/page.css",
       "static/chunks/app/profile/page.js"
     ],
     "/profile/edit/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
+      "static/css/app/profile/edit/page.css",
       "static/chunks/app/profile/edit/page.js"
     ],
     "/collection/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
+      "static/css/app/collection/page.css",
       "static/chunks/app/collection/page.js"
     ],
     "/transactions/page": [

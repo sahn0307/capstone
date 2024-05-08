@@ -1,12 +1,12 @@
-// app/profile/edit/page.js
 'use client';
-
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function EditProfilePage() {
-  const { user, fetchUserData } = useAuth();
+  const { user, updateUser } = useAuth();
   const [username, setUsername] = useState(user?.username || '');
   const [email, setEmail] = useState(user?.email || '');
   const router = useRouter();
@@ -19,27 +19,29 @@ export default function EditProfilePage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       const response = await fetch(`http://localhost:5555/api/v1/users/${user.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': getCookie('csrf_access_token')
+          'X-CSRF-TOKEN': getCookie('csrf_access_token'),
         },
         body: JSON.stringify({ username, email }),
         credentials: 'include',
       });
-
+  
       if (response.ok) {
-        // Fetch the updated user data and update the AuthContext
-        await fetchUserData();
+        const updatedUser = await response.json();
+        updateUser(updatedUser); // Update the user data in the AuthContext
         router.push('/profile');
+        toast.success('Profile updated successfully');
       } else {
-        throw new Error('Failed to update user profile');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update user profile');
       }
     } catch (error) {
       console.error('Error updating profile:', error);
+      toast.error(error.message);
     }
   };
 
@@ -49,6 +51,8 @@ export default function EditProfilePage() {
 
   return (
     <div className="container mx-auto px-4">
+      <div><ToastContainer/>
+      
       <h1 className="text-3xl font-bold mb-4">Edit Profile</h1>
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
@@ -75,13 +79,11 @@ export default function EditProfilePage() {
             className="w-full px-3 py-2 border border-gray-300 rounded"
           />
         </div>
-        <button
-          type="submit"
-          className="px-4 py-2 bg-blue-500 text-white rounded"
-        >
+        <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded">
           Save Changes
         </button>
       </form>
+      </div>
     </div>
   );
 }

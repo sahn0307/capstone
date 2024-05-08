@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useAuth } from '../context/AuthContext';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function CardsPage() {
   const { user } = useAuth();
@@ -31,7 +33,8 @@ export default function CardsPage() {
       setTotalPages(data.total_pages);
       setTotalCards(data.total_cards);
     } catch (error) {
-      console.error('Error fetching cards:', error);
+      toast.error('Error fetching cards:', error);
+      toast.error('Error fetching cards:', error);
     }
   };
 
@@ -41,7 +44,7 @@ export default function CardsPage() {
       const data = await response.json();
       setUserCards(data);
     } catch (error) {
-      console.error('Error fetching user cards:', error);
+      toast.error('Error fetching user cards:', error);
     }
   };
 
@@ -100,7 +103,7 @@ export default function CardsPage() {
       // Fetch the updated user cards
       fetchUserCards();
     } catch (error) {
-      console.error('Error adding card to collection:', error);
+      toast.error('Error adding card to collection:', error);
     }
   };
 
