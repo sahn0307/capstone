@@ -2,6 +2,8 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { toast } from 'react-toastify';
 
 const AuthContext = createContext();
 
@@ -9,29 +11,41 @@ export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const router = useRouter();
 
   useEffect(() => {
-    // Check if the user is already authenticated on initial load
-    fetchUserData();
-  }, []);
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch('http://localhost:5555/api/v1/me', {
+          credentials: 'include',
+        });
 
-  const fetchUserData = async () => {
-    try {
-      const response = await fetch('http://localhost:5555/api/v1/me', {
-        credentials: 'include',
-      });
+        if (response.ok) {
+          const userData = await response.json();
+          setUser(userData);
+        } else {
+          const refreshResponse = await fetch('http://localhost:5555/api/v1/refresh', {
+            method: 'POST',
+            credentials: 'include',
+          });
 
-      if (response.ok) {
-        const userData = await response.json();
-        setUser(userData);
-      } else {
-        setUser(null);
+          if (refreshResponse.ok) {
+            const refreshedUserData = await refreshResponse.json();
+            setUser(refreshedUserData);
+          } else {
+            router.push('/auth');
+            toast.error('Please log in');
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        router.push('/auth');
+        toast.error('An error occurred. Please log in again.');
       }
-    } catch (error) {
-      console.error('Error fetching user data:', error);
-      setUser(null);
-    }
-  };
+    };
+
+    fetchUserData();
+  }, [router]);
 
   const login = async (userData) => {
     setUser(userData);
@@ -44,37 +58,15 @@ export const AuthProvider = ({ children }) => {
         credentials: 'include',
       });
       setUser(null);
+      router.push('/auth');
     } catch (error) {
       console.error('Logout error:', error);
+      toast.error('An error occurred during logout.');
     }
   };
 
-  // const updateUser = async (userId, updatedData) => {
-  //   try {
-  //     const response = await fetch(`http://localhost:5555/api/v1/users/${userId}`, {
-  //       method: 'PUT',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify(updatedData),
-  //       credentials: 'include',
-  //     });
-
-  //     if (response.ok) {
-  //       const updatedUser = await response.json();
-  //       setUser(updatedUser);
-  //     } else {
-  //       throw new Error('Failed to update user profile');
-  //     }
-  //   } catch (error) {
-  //     console.error('Error updating user profile:', error);
-  //     throw error;
-  //   }
-  // };
-  
-
   return (
-    <AuthContext.Provider value={{ user, login, logout, fetchUserData,}}>
+    <AuthContext.Provider value={{ user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,7 +1,9 @@
 {
   "/page": "app/page.js",
-  "/auth/page": "app/auth/page.js",
-  "/collection/page": "app/collection/page.js",
   "/profile/edit/page": "app/profile/edit/page.js",
-  "/profile/page": "app/profile/page.js"
+  "/profile/page": "app/profile/page.js",
+  "/transactions/page": "app/transactions/page.js",
+  "/cards/page": "app/cards/page.js",
+  "/collection/page": "app/collection/page.js",
+  "/auth/page": "app/auth/page.js"
 }

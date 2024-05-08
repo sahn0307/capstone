@@ -6,6 +6,8 @@ import * as Yup from 'yup';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
 import { useState } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 
@@ -47,19 +49,18 @@ export default function AuthPage() {
           }),
           credentials: 'include',
         });
-
+    
         if (response.ok) {
           const userData = await response.json();
           login(userData);
           router.push('/profile');
         } else {
           const errorData = await response.json();
-          console.error('Authentication error:', errorData);
-          // Handle authentication error, e.g., display error message
+          toast.error(errorData.message || 'Authentication failed'); // Display error toast
         }
       } catch (error) {
         console.error('Authentication error:', error);
-        // Handle network or other errors
+        toast.error('An error occurred. Please try again.'); // Display error toast for network or other errors
       }
     },
   });
@@ -131,6 +132,7 @@ export default function AuthPage() {
           </button>
         </p>
       </div>
+      <ToastContainer />
     </div>
   );
 }
