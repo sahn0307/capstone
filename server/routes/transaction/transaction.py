@@ -3,7 +3,9 @@ from models.transaction import Transaction
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import func, case, literal_column
 from flask import jsonify
+from flask_jwt_extended import jwt_required
 class TransactionResource(Resource):
+    @jwt_required()
     def post(self):
         data = request.get_json()
         user_id = data.get('user_id')
@@ -30,6 +32,7 @@ class TransactionResource(Resource):
             return {'message': str(e)}, 400
         except Exception as e:
             return {'message': str(e)}, 400
+    @jwt_required()
     def get(self):
         user_id = request.args.get('user_id')
         if not user_id:
@@ -51,6 +54,7 @@ class TransactionResource(Resource):
         return transaction_data, 200
     
 class TransactionTotal(Resource):
+    @jwt_required()
     def get(self):
         user_id = request.args.get('user_id')
         if not user_id:

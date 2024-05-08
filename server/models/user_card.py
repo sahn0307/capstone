@@ -7,5 +7,5 @@ class UserCard(db.Model):
     card_id = db.Column(db.String(100), db.ForeignKey('cards.id'), nullable=False)
     quantity = db.Column(db.Integer, nullable=False, default=1)
 
-    user = db.relationship('User', backref=db.backref('user_cards', lazy=True))
+    user = db.relationship('User', backref=db.backref('user_cards', lazy=True, cascade='all, delete-orphan'))
     card = db.relationship('Card', backref=db.backref('user_cards', lazy=True))

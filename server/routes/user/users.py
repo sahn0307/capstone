@@ -36,7 +36,8 @@ class UserResource(Resource):
         if not user:
             return {'message': 'User not found'}, 404
         return user_schema.dump(user), 200
-
+    
+    @jwt_required()
     def put(self, user_id):
         user = User.query.get(user_id)
         if not user:
@@ -51,5 +52,16 @@ class UserResource(Resource):
         except Exception as e:
             db.session.rollback()
             return {'message': str(e)}, 422
+        
+    @jwt_required()
+    def delete(self, user_id):
+        user = User.query.get(user_id)
+        if not user:
+            return {'message': 'User not found'}, 404
+
+        db.session.delete(user)
+        db.session.commit()
+        return {'message': 'User deleted successfully'}, 200
+        
 
 

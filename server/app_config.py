@@ -42,4 +42,5 @@ ma = Marshmallow(app)
 flask_bcrypt = Bcrypt(app)
 #! Flask JWT Extended configuration
 jwt = JWTManager(app)
-CORS(app)
+CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000", "supports_credentials": True}})
+

@@ -45,6 +45,11 @@ export default function CollectionPage() {
     setPrice(card.price ? card.price.toFixed(2) : 0);
     setIsAddingOrBuying(false);
   };
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+  }
 
   const handleSubmitTransaction = async () => {
     try {
@@ -55,6 +60,7 @@ export default function CollectionPage() {
         await fetch('/api/v1/transactions', {
           method: 'POST',
           headers: {
+            'X-CSRF-TOKEN': getCookie('csrf_access_token'),
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
@@ -71,6 +77,7 @@ export default function CollectionPage() {
         await fetch(`/api/v1/user-cards/${userCardId}`, {
           method: 'PUT',
           headers: {
+            'X-CSRF-TOKEN': getCookie('csrf_access_token'),
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({

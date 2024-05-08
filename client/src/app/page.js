@@ -1,5 +1,9 @@
 // app/page.js
 import Link from 'next/link';
+import Image from 'next/image';
+import jace from '/public/jace.jpeg';
+import lotus from '/public/lotus.jpeg';
+import valakut from '/public/valakut.jpeg';
 
 export default function Home() {
   return (
@@ -13,11 +17,11 @@ export default function Home() {
             Discover, collect, and manage your favorite Magic cards with ease.
           </p>
           <div className="mt-5 max-w-md mx-auto sm:flex sm:justify-center md:mt-8">
-            <div className="rounded-md shadow">
+            {/* <div className="rounded-md shadow">
               <Link href="/auth" className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-lg md:px-10">
                 Get Started
               </Link>
-            </div>
+            </div> */}
             <div className="mt-3 rounded-md shadow sm:mt-0 sm:ml-3">
               <Link href="/cards" className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-indigo-600 bg-white hover:bg-gray-50 md:py-4 md:text-lg md:px-10">
                 Browse Cards
@@ -34,7 +38,7 @@ export default function Home() {
                 </h3>
                 <div className="mt-2 max-w-xl text-sm text-gray-500">
                   <p>
-                    Access a vast collection of magic cards from various sets and editions. Easily search and filter cards based on name, type, rarity, and more.
+                    Access a vast collection of magic cards from throughout Magic's history. Search for cards and build your collection.
                   </p>
                 </div>
               </div>
@@ -54,18 +58,41 @@ export default function Home() {
             <div className="bg-white overflow-hidden shadow rounded-lg">
               <div className="px-4 py-5 sm:p-6">
                 <h3 className="text-lg leading-6 font-medium text-gray-900">
-                  Finance Management
+                  Transaction Tracking
                 </h3>
                 <div className="mt-2 max-w-xl text-sm text-gray-500">
                   <p>
-                    Easily manage your magic card inventory. Add new cards, update quantities, and track the total value of your collection.
+                    Keep track of your purchases, sales, and lifetime profit/loss as well as the value of your collection!
                   </p>
                 </div>
+               
               </div>
+              
             </div>
+    
+          </div>
+          <div className="mt-8 flex justify-center">
+           
+            <Image
+              src={jace}
+              alt="Jace"
+              className="mx-4 h-96 object-contain"
+            />
+            <Image
+              src={lotus}
+              alt="Lotus"
+              className="mx-4 h-96 object-contain"
+            />
+            <Image
+              src={valakut}
+              alt="Valakut"
+              className="mx-4 h-96 object-contain"
+            />
           </div>
         </div>
       </div>
+   
     </div>
+    
   );
 }

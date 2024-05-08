@@ -9,6 +9,12 @@ export default function Profile() {
   const [profitLoss, setProfitLoss] = useState(0);
   const router = useRouter();
 
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+  }
+  
   useEffect(() => {
     if (user) {
       fetchCollectionValue(user.id);
@@ -44,6 +50,9 @@ export default function Profile() {
   const handleDeleteProfile = async () => {
     try {
       await fetch(`/api/v1/users/${user.id}`, {
+        headers: {
+          'X-CSRF-TOKEN': getCookie('csrf_access_token'),
+        },
         method: 'DELETE',
       });
       logout();

@@ -7,9 +7,11 @@ from models.user_card import UserCard
 from models.card import Card
 from flask import jsonify
 from sqlalchemy import func, case, literal_column
+from flask_jwt_extended import jwt_required
 
 
 class UserCardResource(Resource):
+    @jwt_required()
     def post(self):
         data = request.get_json()
         user_id = data.get('user_id')
@@ -26,8 +28,9 @@ class UserCardResource(Resource):
 
         db.session.commit()
         return jsonify({'message': 'Card added to user collection'})
-
+    @jwt_required()
     def get(self):
+        
         user_id = request.args.get('user_id')
         search_query = request.args.get('search', '')
         total_cards = UserCard.query.filter_by(user_id=user_id).join(Card).filter(Card.name.ilike(f'%{search_query}%')).count()
@@ -57,6 +60,7 @@ class UserCardResource(Resource):
         return jsonify(cards)
 
 class UserCardItemResource(Resource):
+    @jwt_required()
     def put(self, user_card_id):
         data = request.get_json()
         quantity = data.get('quantity')
@@ -68,7 +72,7 @@ class UserCardItemResource(Resource):
             return jsonify({'message': 'User card updated successfully'})
         else:
             return jsonify({'message': 'User card not found'}), 404
-
+    @jwt_required()
     def delete(self, user_card_id):
         user_card = UserCard.query.get(user_card_id)
         if user_card:
@@ -79,6 +83,7 @@ class UserCardItemResource(Resource):
             return jsonify({'message': 'User card not found'}), 404
 
 class UserCardValueResource(Resource):
+    @jwt_required()
     def get(self):
         user_id = request.args.get('user_id')
         if not user_id:

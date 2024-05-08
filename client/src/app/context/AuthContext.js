@@ -2,7 +2,6 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect } from 'react';
-import Cookies from 'js-cookie';
 
 const AuthContext = createContext();
 
@@ -12,27 +11,20 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const token = Cookies.get('access_token');
-    if (token) {
-      // Fetch user data using the token
-      fetchUserData(token);
-    }
+    // Check if the user is already authenticated on initial load
+    fetchUserData();
   }, []);
 
-  const fetchUserData = async (token) => {
+  const fetchUserData = async () => {
     try {
-      const response = await fetch('/api/v1/me', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const response = await fetch('http://localhost:5555/api/v1/me', {
+        credentials: 'include',
       });
 
       if (response.ok) {
         const userData = await response.json();
         setUser(userData);
       } else {
-        // Handle error case
-        console.error('Failed to fetch user data');
         setUser(null);
       }
     } catch (error) {
@@ -41,49 +33,48 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const login = (userData, token) => {
+  const login = async (userData) => {
     setUser(userData);
-    Cookies.set('access_token', token, { expires: 7 }); // Set the token cookie with a 7-day expiration
   };
 
   const logout = async () => {
     try {
-      await fetch('api/v1/logout', {
+      await fetch('http://localhost:5555/api/v1/logout', {
         method: 'DELETE',
         credentials: 'include',
       });
-      Cookies.remove('access_token');
       setUser(null);
     } catch (error) {
       console.error('Logout error:', error);
     }
   };
 
-  const updateUser = async (userId, updatedData) => {
-    try {
-      const response = await fetch(`http://localhost:5555/api/v1/users/${userId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updatedData),
-      });
+  // const updateUser = async (userId, updatedData) => {
+  //   try {
+  //     const response = await fetch(`http://localhost:5555/api/v1/users/${userId}`, {
+  //       method: 'PUT',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify(updatedData),
+  //       credentials: 'include',
+  //     });
+
+  //     if (response.ok) {
+  //       const updatedUser = await response.json();
+  //       setUser(updatedUser);
+  //     } else {
+  //       throw new Error('Failed to update user profile');
+  //     }
+  //   } catch (error) {
+  //     console.error('Error updating user profile:', error);
+  //     throw error;
+  //   }
+  // };
   
-      if (response.ok) {
-        const updatedUser = await response.json();
-        setUser(updatedUser);
-      } else {
-        const errorData = await response.json();
-        throw new Error(`Failed to update user profile: ${errorData.message}`);
-      }
-    } catch (error) {
-      console.error('Error updating user profile:', error);
-      throw error;
-    }
-  };
-  
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, updateUser }}>
+    <AuthContext.Provider value={{ user, login, logout, fetchUserData,}}>
       {children}
     </AuthContext.Provider>
   );
