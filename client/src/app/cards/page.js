@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useAuth } from '../context/AuthContext';
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 export default function CardsPage() {
@@ -33,8 +33,7 @@ export default function CardsPage() {
       setTotalPages(data.total_pages);
       setTotalCards(data.total_cards);
     } catch (error) {
-      toast.error('Error fetching cards:', error);
-      toast.error('Error fetching cards:', error);
+      console.error('Error fetching cards:', error);
     }
   };
 
@@ -44,7 +43,7 @@ export default function CardsPage() {
       const data = await response.json();
       setUserCards(data);
     } catch (error) {
-      toast.error('Error fetching user cards:', error);
+      console.error('Error fetching user cards:', error);
     }
   };
 
@@ -102,10 +101,13 @@ export default function CardsPage() {
 
       // Fetch the updated user cards
       fetchUserCards();
-    } catch (error) {
-      toast.error('Error adding card to collection:', error);
-    }
-  };
+
+    toast.success('Card added to collection successfully');
+  } catch (error) {
+    console.error('Error adding card to collection:', error);
+    toast.error('Failed to add card to collection');
+  }
+};
 
   const isCardInCollection = (cardId) => {
     return userCards.some((userCard) => userCard.card_id === cardId);
@@ -242,6 +244,7 @@ export default function CardsPage() {
         ))}
       </div>
       {renderPaginationButtons()}
+      <ToastContainer />
     </div>
   );
 }

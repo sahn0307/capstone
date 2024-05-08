@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useAuth } from '../context/AuthContext';
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 export default function CollectionPage() {
@@ -92,11 +92,13 @@ export default function CollectionPage() {
         setPrice(0);
 
         fetchUserCards(user.id);
-      }
-    } catch (error) {
-      toast.error('Error submitting transaction:', error);
+
+      toast.success(`Card ${isAddingOrBuying ? 'added/bought' : 'sold/removed'} successfully`);
     }
-  };
+  } catch (error) {
+    toast.error('Error submitting transaction:', error);
+  }
+};
 
   const handleCancelTransaction = () => {
     setSelectedCard(null);
@@ -192,6 +194,7 @@ export default function CollectionPage() {
           <p>No cards found in your collection.</p>
         )}
       </div>
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 }
